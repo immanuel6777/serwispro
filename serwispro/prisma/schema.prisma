@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  bikes     Bike[]
+  createdAt DateTime @default(now())
+}
+
+model Bike {
+  id         String   @id @default(cuid())
+  brand      String
+  model      String
+  year       Int?
+  type       String   // MTB, szosa, gravel, miejski, elektryczny
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  repairs    Repair[]
+}
+
+model Repair {
+  id          String       @id @default(cuid())
+  status      RepairStatus @default(ACCEPTED)
+  problemDesc String
+  aiDiagnosis Json?
+  aiEstimate  Json?
+  aiEmail     Json?
+  laborCost   Decimal?     @db.Decimal(10, 2)
+  totalCost   Decimal?     @db.Decimal(10, 2)
+  notes       String?
+  bikeId      String
+  bike        Bike         @relation(fields: [bikeId], references: [id], onDelete: Cascade)
+  parts       RepairPart[]
+  emails      EmailLog[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum RepairStatus {
+  ACCEPTED
+  DIAGNOSED
+  WAITING_APPROVAL
+  WAITING_PARTS
+  IN_PROGRESS
+  READY
+  COMPLETED
+}
+
+model Part {
+  id           String         @id @default(cuid())
+  name         String
+  category     String
+  brand        String?
+  sku          String?        @unique
+  defaultPrice Decimal        @db.Decimal(10, 2)
+  inventory    Inventory?
+  repairs      RepairPart[]
+  suppliers    SupplierPart[]
+}
+
+model Inventory {
+  id       String  @id @default(cuid())
+  partId   String  @unique
+  part     Part    @relation(fields: [partId], references: [id], onDelete: Cascade)
+  quantity Int     @default(0)
+  minStock Int     @default(2)
+  location String?
+}
+
+model Supplier {
+  id    String         @id @default(cuid())
+  name  String
+  url   String?
+  email String?
+  parts SupplierPart[]
+}
+
+model SupplierPart {
+  id         String   @id @default(cuid())
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  partId     String
+  part       Part     @relation(fields: [partId], references: [id], onDelete: Cascade)
+  price      Decimal  @db.Decimal(10, 2)
+  url        String?
+  inStock    Boolean  @default(true)
+
+  @@unique([supplierId, partId])
+}
+
+model RepairPart {
+  id       String  @id @default(cuid())
+  repairId String
+  repair   Repair  @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  partId   String
+  part     Part    @relation(fields: [partId], references: [id])
+  quantity Int     @default(1)
+  price    Decimal @db.Decimal(10, 2)
+}
+
+model EmailLog {
+  id       String   @id @default(cuid())
+  repairId String
+  repair   Repair   @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  to       String
+  subject  String
+  body     String
+  type     String   // wycena, status, gotowy
+  sentAt   DateTime @default(now())
+}

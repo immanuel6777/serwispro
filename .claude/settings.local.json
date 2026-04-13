@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest serwispro --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npx prisma:*)",
+      "Bash(npx shadcn@latest add card input label select textarea badge dialog table tabs separator -y)",
+      "Bash(npx tsc:*)",
+      "Bash(npm list:*)",
+      "Bash(npm install:*)",
+      "Bash(ls /c/Users/Admin/Documents/Claude/Projects/stratch/serwispro/src/components/supplier*)",
+      "Bash(npx next:*)",
+      "Bash(nvm list:*)",
+      "Bash(xargs sed:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx dotenv:*)",
+      "Bash(npx tsx:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
